@@ -1,0 +1,13 @@
+{
+	"tile_tower_tileset" : "tile_tower",
+	"tileset_entrance" : "tile_entrance",
+	"tileset_secret" : "tile_secret",
+	
+	"tileset_medieval" : "tile_medieval",
+	"tileset_medieval2" : "tile_medieval2",
+	"tileset_medieval3" : "tile_medieval3",
+	
+	"tileset_dungeon" : "tile_dungeon",
+	"tileset_dungeon2" : "tile_dungeon2",
+	"tileset_dungeon3" : "tile_dungeon3",
+}

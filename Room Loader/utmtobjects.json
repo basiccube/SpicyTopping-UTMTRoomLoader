@@ -1,0 +1,19 @@
+{
+	"obj_wall" : "obj_solid",
+	"obj_onewaywall" : "obj_platform",
+	"obj_slopes" : "obj_slope",
+	
+	"obj_destroyableescape" : "obj_destroyable_escape",
+	"obj_destroyable2escape" : "obj_destroyable2_escape",
+	"obj_destroyable2_bigescape" : "obj_destroyable2_big_escape",
+	"obj_destroyable3escape" : "obj_destroyable3_escape",
+	"obj_metalblockescape" : "obj_metalblock_escape",
+	
+	"obj_targetblock" : "obj_enemyblock",
+	"obj_onwaybigblock" : "obj_onewaybigblock",
+	
+	"obj_slime" : "obj_cheeseslime",
+	"obj_hookend" : "obj_hookEnd",
+	"obj_water2" : "obj_swimmablewater",
+	"obj_johnpillar" : "obj_hungrypillar",
+}
