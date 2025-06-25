@@ -1,7 +1,9 @@
 // Look through all of the layers in the room data
 // and make, well, room layers out of that data.
 
-for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
+// Having the length in a variable is slightly faster
+var layerLength = array_length(global.utmtRoom.layers)
+for (var i = 0; i < layerLength; i++)
 {
 	// Some basic info that will be used
 	var layData = global.utmtRoom.layers[i]
@@ -70,7 +72,8 @@ for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
 			print("Found instance layer ", name)
 			
 			var instData = layData.layer_data.instances
-			for (var j = 0; j < array_length(instData); j++)
+			var instDataLength = array_length(instData)
+			for (var j = 0; j < instDataLength; j++)
 			{
 				var objectData = instData[j]
 				var objectName = objectData.object_definition
@@ -78,7 +81,8 @@ for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
 				
 				// Check the object map and see if the object needs to be renamed
 				var objectMapNames = variable_struct_get_names(global.utmtObjectMap)
-				for (var k = 0; k < array_length(objectMapNames); k++)
+				var objectMapLength = array_length(objectMapNames)
+				for (var k = 0; k < objectMapLength; k++)
 				{
 					if (objectName == objectMapNames[k])
 					{
@@ -215,7 +219,8 @@ for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
 			
 			// Check the tileset map if the tileset needs to be renamed
 			var tilesetMapNames = variable_struct_get_names(global.utmtTilesetMap)
-			for (var j = 0; j < array_length(tilesetMapNames); j++)
+			var tilesetMapLength = array_length(tilesetMapNames)
+			for (var j = 0; j < tilesetMapLength; j++)
 			{
 				if (tilesetName == tilesetMapNames[j])
 				{
@@ -229,7 +234,8 @@ for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
 			if global.utmtUseOldFixes
 			{
 				var oldTilesetMapNames = variable_struct_get_names(global.utmtOldTilesetMap)
-				for (var j = 0; j < array_length(oldTilesetMapNames); j++)
+				var oldTilesetMapLength = array_length(oldTilesetMapNames)
+				for (var j = 0; j < oldTilesetMapLength; j++)
 				{
 					if (tilesetName == oldTilesetMapNames[j])
 					{
@@ -279,10 +285,12 @@ for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
 				tileDrawer.layerName = name
 				
 				// Assign tilemap grid cells with their respective tile IDs
-				for (var j = 0; j < array_length(tileData); j++)
+				var tileDataLength = array_length(tileData)
+				for (var j = 0; j < tileDataLength; j++)
 				{
 					var tileStrip = tileData[j]
-					for (var k = 0; k < array_length(tileStrip); k++)
+					var tileStripLength = array_length(tileStrip)
+					for (var k = 0; k < tileStripLength; k++)
 					{
 						var tile = tileStrip[k].id
 						ds_grid_set(tileDrawer.tilemap, k, j, tile)
@@ -299,10 +307,12 @@ for (var i = 0; i < array_length(global.utmtRoom.layers); i++)
 				var tilemap = layer_tilemap_create(lay, 0, 0, tileset, tilemapData.tiles_x, tilemapData.tiles_y)
 				ds_map_replace(global.utmtLayerTilemaps, name, tilemap)
 				
-				for (var j = 0; j < array_length(tileData); j++)
+				var tileDataLength = array_length(tileData)
+				for (var j = 0; j < tileDataLength; j++)
 				{
 					var tileStrip = tileData[j]
-					for (var k = 0; k < array_length(tileStrip); k++)
+					var tileStripLength = array_length(tileStrip)
+					for (var k = 0; k < tileStripLength; k++)
 					{
 						var tile = tileStrip[k].id
 						tilemap_set(tilemap, tile, k, j)
