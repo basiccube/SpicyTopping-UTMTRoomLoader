@@ -8,7 +8,13 @@ global.utmtHasSprites = false
 
 global.utmtOldTimestamp = 1640988000
 global.utmtTimestamp = 0
-global.utmtUseOldFixes = false
+global.utmtFixes =
+{
+	visibleladders : false,
+	oldtilesets : false,
+	ignoretiledepth : false,
+	minijohnescapeonly : false,
+}
 
 // Get UTMT object replacement map
 global.utmtObjectMap = -4
@@ -28,58 +34,73 @@ if (file_exists("spicytopping/utmtoldtilesets.json"))
 // Downloads the command line version of UndertaleModTool and all other required files
 function utmt_download()
 {
-	if !directory_exists("utmtcli")
-	{
-		// Function for determining the download progress
-		var finishfunc = function()
-		{
-			global.utmtDownloadProgress++
-			if (global.utmtDownloadProgress >= 7)
-				utmt_download()
-		}
-		
-		with (obj_shell)
-		{
-			array_push(output, "Please wait while UTMT-CLI downloads...")
-			if conhost_is_allocated()
-				array_push(output, "Check the debug console window for more info.")
-		}
-		
-		// Download UTMT itself and the scripts required
-		download_file("https://github.com/UnderminersTeam/UndertaleModTool/releases/download/0.8.2.0/UTMT_CLI_v0.8.2.0-Windows.zip", "utmtcli/utmtcli.zip", finishfunc)
-		download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportRooms.csx", "utmtcli/scripts/ExportRooms.csx", finishfunc)
-		download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportInfo.csx", "utmtcli/scripts/ExportInfo.csx", finishfunc)
-		download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportSprites.csx", "utmtcli/scripts/ExportSprites.csx", finishfunc)
-		download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportTilesets.csx", "utmtcli/scripts/ExportTilesets.csx", finishfunc)
-		
-		// Pull UTMT definitions for PT
-		download_file("https://github.com/azphina/PizzaTowerGameSpecificData/raw/refs/heads/main/GameSpecificData/Underanalyzer/pizzatower.json", "utmtcli/GameSpecificData/Underanalyzer/pizzatower.json", finishfunc)
-		download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/Definitions/pizzatower.json", "utmtcli/GameSpecificData/Definitions/pizzatower.json", finishfunc)
-	}
-	else if !file_exists("utmtcli/UndertaleModCli.exe")
-	{
-		// Extract the utmtcli.zip file and then delete it after that
-		print("Unzipping UTMT-CLI...")
-		
-		var result = zip_unzip("utmtcli/utmtcli.zip", "utmtcli/")
-		if (result <= 0)
-			print("Failed to unzip UTMT-CLI.")
-		else
-		{
-			print("Cleaning up...")
-			file_delete("utmtcli/utmtcli.zip")
-			
-			with (obj_shell)
-				array_push(output, "Download complete! You can now use the UTMT specific functions.")
-			print("UTMT-CLI download complete! You may now use the functions that make use of it.")
-		}
-	}
+	var installStage = 0
+	if (file_exists("utmtcli/utmtcli.zip") && !file_exists("utmtcli/UndertaleModCli.exe"))
+		installStage = 1
 	else if file_exists("utmtcli/UndertaleModCli.exe")
+		installStage = 2
+	
+	switch installStage
 	{
-		// It's already installed, why do you want to install it again?
-		with (obj_shell)
-			array_push(output, "UTMT-CLI is already installed!")
-		print("UTMT-CLI is already installed!")
+		case 0:
+			// Function for determining the download progress
+			var finishfunc = function()
+			{
+				global.utmtDownloadProgress++
+				if (global.utmtDownloadProgress >= 7)
+					utmt_download()
+			}
+			global.utmtDownloadProgress = 0
+			
+			// Print initial text to in-game console
+			with (obj_shell)
+			{
+				array_push(output, "Please wait while UTMT-CLI downloads...")
+				if conhost_is_allocated()
+					array_push(output, "Check the debug console window for more info.")
+			}
+			
+			// Download UTMT itself and the scripts required
+			download_file("https://github.com/UnderminersTeam/UndertaleModTool/releases/download/0.8.2.0/UTMT_CLI_v0.8.2.0-Windows.zip", "utmtcli/utmtcli.zip", finishfunc)
+			download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportRooms.csx", "utmtcli/scripts/ExportRooms.csx", finishfunc)
+			download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportInfo.csx", "utmtcli/scripts/ExportInfo.csx", finishfunc)
+			download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportSprites.csx", "utmtcli/scripts/ExportSprites.csx", finishfunc)
+			download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/ExportTilesets.csx", "utmtcli/scripts/ExportTilesets.csx", finishfunc)
+			
+			// Pull UTMT definitions for PT
+			download_file("https://github.com/azphina/PizzaTowerGameSpecificData/raw/refs/heads/main/GameSpecificData/Underanalyzer/pizzatower.json", "utmtcli/GameSpecificData/Underanalyzer/pizzatower.json", finishfunc)
+			download_file("https://github.com/basiccube/SpicyTopping-Misc/raw/refs/heads/main/Definitions/pizzatower.json", "utmtcli/GameSpecificData/Definitions/pizzatower.json", finishfunc)
+			break
+			
+		case 1:
+			// Extract the utmtcli.zip file and then delete it after that
+			print("Unzipping UTMT-CLI...")
+			
+			var result = zip_unzip("utmtcli/utmtcli.zip", "utmtcli/")
+			if (result <= 0)
+			{
+				file_delete("utmtcli/utmtcli.zip")
+				with (obj_shell)
+					array_push(output, "Failed to unzip UTMT-CLI. Please try downloading again.")
+				print("Failed to unzip UTMT-CLI.")
+			}
+			else
+			{
+				print("Cleaning up...")
+				file_delete("utmtcli/utmtcli.zip")
+				
+				with (obj_shell)
+					array_push(output, "Download complete! You can now use the UTMT specific functions.")
+				print("UTMT-CLI download complete! You may now use the functions that make use of it.")
+			}
+			break
+			
+		case 2:
+			// It's already installed, why do you want to install it again?
+			with (obj_shell)
+				array_push(output, "UTMT-CLI is already installed!")
+			print("UTMT-CLI is already installed!")
+			break
 	}
 }
 
@@ -88,7 +109,7 @@ function utmt_download()
 function utmt_executescript(datafile, scriptfile)
 {
 	var path = concat(game_save_id, "\\utmtcli")
-	var process = ProcessExecute(concat(path, "\\UndertaleModCli.exe load ", datafile, " -s ", path, "\\scripts\\", scriptfile))
+	var process = ProcessExecute(concat(path, "\\UndertaleModCli.exe load \"", datafile, "\" -s ", path, "\\scripts\\", scriptfile))
 	var processOutput = ExecutedProcessReadFromStandardOutput(process)
 	print(processOutput)
 }
@@ -211,6 +232,8 @@ function utmt_delete_export(setname)
 		exit;
 	}
 	
+	if (global.utmtRoomSet == setname)
+		global.utmtRoomSet = ""
 	directory_destroy(concat("exports/", setname))
 }
 
@@ -226,14 +249,36 @@ function utmt_setroomset(setname)
 	global.utmtRoomSet = setname
 	global.utmtTimestamp = utmt_get_timestamp(setname)
 	global.utmtHasSprites = directory_exists(concat("exports/", setname, "/Sprites/"))
-	global.utmtUseOldFixes = (global.utmtTimestamp < global.utmtOldTimestamp)
 	
-	// ah, yes, let me use this for only one thing
+	// Reset all fixes to false
+	var fixes = variable_struct_get_names(global.utmtFixes)
+	var fixesLength = array_length(fixes)
+	for (var i = 0; i < fixesLength; i++)
+		variable_struct_set(global.utmtFixes, fixes[i], false)
+	
+	// Enable fixes if specific mod is found or is an old PT build
 	var name = utmt_get_name(setname)
 	if (string_pos("PizzaTower_Demo3", name) != 0)
 	{
-		print("Enabled fixes for Demo 3")
-		global.utmtUseOldFixes = true
+		print("UTMT fixes enabled: Demo 3")
+		global.utmtFixes.visibleladders = true
+		global.utmtFixes.oldtilesets = true
+		global.utmtFixes.minijohnescapeonly = true
+		global.utmtFixes.ignoretiledepth = true
+	}
+	else if (string_pos("Pizza_Tower_Plus_Mod", name) != 0)
+	{
+		print("UTMT fixes enabled: '19 Plus")
+		global.utmtFixes.oldtilesets = true
+		global.utmtFixes.ignoretiledepth = true
+	}
+	else if (global.utmtTimestamp < global.utmtOldTimestamp)
+	{
+		print("UTMT fixes enabled: Old Build")
+		global.utmtFixes.visibleladders = true
+		global.utmtFixes.oldtilesets = true
+		global.utmtFixes.minijohnescapeonly = true
+		global.utmtFixes.ignoretiledepth = true
 	}
 }
 

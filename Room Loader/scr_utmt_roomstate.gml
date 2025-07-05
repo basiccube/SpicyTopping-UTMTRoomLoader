@@ -5,6 +5,7 @@
 
 global.utmtInstanceManager = ds_map_create()
 global.utmtLayerTilemaps = ds_map_create()
+global.utmtSecretID = -4
 
 // Reset states of UTMT rooms
 // Also resets regular room states

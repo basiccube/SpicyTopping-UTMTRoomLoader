@@ -214,6 +214,35 @@ function meta_utmt_gotoroom()
 }
 #endregion
 
+#region utmt_listrooms
+function sh_utmt_listrooms(args)
+{
+	if (global.utmtRoomSet == "")
+		return "You haven't set the current room set.";
+	
+	var roomString = ""
+	var file = file_find_first(concat("exports/", global.utmtRoomSet, "/Rooms/*.json"), 0)
+	while (file != "")
+	{
+		roomString += string_replace_all(file, filename_ext(file), "") + "\n"
+		file = file_find_next()
+	}
+	file_find_close()
+	
+	return roomString;
+}
+
+function meta_utmt_listrooms()
+{
+	return
+	{
+		description: "list rooms in room set",
+		hidden: false,
+		deferred: false
+	}
+}
+#endregion
+
 #region utmt_resetrooms
 function sh_utmt_resetrooms(args)
 {
@@ -226,6 +255,27 @@ function meta_utmt_resetrooms()
 	return
 	{
 		description: "reset UTMT room states",
+		hidden: false,
+		deferred: false
+	}
+}
+#endregion
+
+#region utmt_opendir
+function sh_utmt_opendir(args)
+{
+	if (global.utmtRoomSet == "")
+		return "You haven't set the current room set.";
+	
+	open_directory(concat(game_save_id, "exports\\", global.utmtRoomSet))
+	return "A file browser window should have opened.";
+}
+
+function meta_utmt_opendir()
+{
+	return
+	{
+		description: "open current room set directory",
 		hidden: false,
 		deferred: false
 	}

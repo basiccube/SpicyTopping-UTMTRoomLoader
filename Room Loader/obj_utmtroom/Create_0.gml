@@ -116,6 +116,12 @@ for (var i = 0; i < layerLength; i++)
 					image_speed : objectData.image_speed,
 				})
 				
+				// Stop here if the instance gets destroyed for some reason
+				if !instance_exists(inst)
+					continue;
+				
+				inst.instID = instanceID
+				
 				// Check if pre-creation code isn't null,
 				// update whatever values need to be updated
 				// and then use GMLive to execute it
@@ -132,15 +138,12 @@ for (var i = 0; i < layerLength; i++)
 					}
 				}
 				
-				// If room set was detected to require old build fixes,
+				// If room set was detected to require any specific fixes,
 				// apply the ones for objects here
-				if global.utmtUseOldFixes
-				{
-					if (inst.object_index == obj_ladder)
-						inst.visible = true
-					if (inst.object_index == obj_minijohn)
-						inst.escape = true
-				}
+				if (inst.object_index == obj_ladder && global.utmtFixes.visibleladders)
+					inst.visible = true
+				if (inst.object_index == obj_minijohn && global.utmtFixes.minijohnescapeonly)
+					inst.escape = true
 				
 				// Check if creation code isn't null,
 				// update whatever values need to be updated
@@ -229,9 +232,9 @@ for (var i = 0; i < layerLength; i++)
 				}
 			}
 			
-			// If old build fixes are required,
+			// If the old tileset fix is enabled,
 			// Check if the tileset needs to be renamed possibly again
-			if global.utmtUseOldFixes
+			if global.utmtFixes.oldtilesets
 			{
 				var oldTilesetMapNames = variable_struct_get_names(global.utmtOldTilesetMap)
 				var oldTilesetMapLength = array_length(oldTilesetMapNames)
