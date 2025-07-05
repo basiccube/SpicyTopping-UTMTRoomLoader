@@ -261,6 +261,27 @@ function meta_utmt_resetrooms()
 }
 #endregion
 
+#region utmt_genfixes
+function sh_utmt_genfixes(args)
+{
+	if (global.utmtRoomSet == "")
+		return "You haven't set the current room set.";
+	
+	utmt_generate_fixes()
+	return "Generated fixes.txt for the current room set.";
+}
+
+function meta_utmt_genfixes()
+{
+	return
+	{
+		description: "generate fixes.txt for current room set",
+		hidden: false,
+		deferred: false
+	}
+}
+#endregion
+
 #region utmt_opendir
 function sh_utmt_opendir(args)
 {

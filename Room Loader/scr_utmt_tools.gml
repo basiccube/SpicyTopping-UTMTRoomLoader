@@ -249,15 +249,29 @@ function utmt_setroomset(setname)
 	global.utmtRoomSet = setname
 	global.utmtTimestamp = utmt_get_timestamp(setname)
 	global.utmtHasSprites = directory_exists(concat("exports/", setname, "/Sprites/"))
+	utmt_clear_fixes()
 	
-	// Reset all fixes to false
+	// Parse fixes.txt file if it exists
+	// If it doesn't, create it
+	if !utmt_parse_fixes()
+		utmt_generate_fixes()
+}
+
+// Reset all fixes
+function utmt_clear_fixes()
+{
 	var fixes = variable_struct_get_names(global.utmtFixes)
 	var fixesLength = array_length(fixes)
 	for (var i = 0; i < fixesLength; i++)
 		variable_struct_set(global.utmtFixes, fixes[i], false)
+}
+
+// Generates the fixes.txt file for the current room set
+function utmt_generate_fixes()
+{
+	utmt_clear_fixes()
 	
-	// Enable fixes if specific mod is found or is an old PT build
-	var name = utmt_get_name(setname)
+	var name = utmt_get_name(global.utmtRoomSet)
 	if (string_pos("PizzaTower_Demo3", name) != 0)
 	{
 		print("UTMT fixes enabled: Demo 3")
@@ -280,6 +294,59 @@ function utmt_setroomset(setname)
 		global.utmtFixes.minijohnescapeonly = true
 		global.utmtFixes.ignoretiledepth = true
 	}
+	
+	var initialText = "# This file specifies any fixes that\n"
+	initialText += "# will be enabled for this room set.\n"
+	initialText += "# To disable a fix, simply comment it out via\n"
+	initialText += "# the # character at the start of a line.\n\n"
+	
+	var fixString = ""
+	var fixNames = variable_struct_get_names(global.utmtFixes)
+	var fixNameLength = array_length(fixNames)
+	for (var i = 0; i < fixNameLength; i++)
+		fixString += (variable_struct_get(global.utmtFixes, fixNames[i]) ? "" : "#") + fixNames[i] + "\n"
+		
+	var path = concat("exports/", global.utmtRoomSet, "/fixes.txt")
+	if file_exists(path)
+		file_delete(path)
+		
+	var file = file_text_open_write(path)
+	file_text_write_string(file, initialText + fixString)
+	file_text_close(file)
+	print("Generated fixes.txt for room set ", global.utmtRoomSet)
+}
+
+// Parses the fixes.txt file from the current room set
+function utmt_parse_fixes()
+{	
+	var path = concat("exports/", global.utmtRoomSet, "/fixes.txt")
+	if !file_exists(path)
+		return false;
+	
+	var fixes = []
+	var file = file_text_open_read(path)
+	while !file_text_eof(file)
+	{
+		var line = file_text_readln(file)
+		line = string_replace_all(line, "\r", "")
+		line = string_replace_all(line, "\n", "")
+		
+		if (string_char_at(line, 1) != "#" && line != "")
+			array_push(fixes, line)
+	}
+	file_text_close(file)
+	
+	var fixesLength = array_length(fixes)
+	for (var i = 0; i < fixesLength; i++)
+	{
+		if !variable_struct_exists(global.utmtFixes, fixes[i])
+			continue;
+		
+		variable_struct_set(global.utmtFixes, fixes[i], true)
+	}
+	
+	print("Loaded fixes.txt for room set ", global.utmtRoomSet)
+	return true;
 }
 
 // Get timestamp of specified room set
