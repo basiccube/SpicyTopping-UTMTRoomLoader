@@ -14,6 +14,8 @@ global.utmtFixes =
 	oldtilesets : false,
 	ignoretiledepth : false,
 	minijohnescapeonly : false,
+	disablesecrettriggers : false,
+	disabletvtriggers : false,
 }
 
 function utmt_initmaps()
@@ -128,7 +130,7 @@ function utmt_exportrooms(datafile, setname, exportsprites = false)
 	
 	var basePath = concat(game_save_id, "/utmtcli/ExportedRooms/")
 	var newPath = concat("exports/", setname, "/")
-	if !directory_exists(concat(newPath, "Rooms"))
+	if !directory_exists(basePath)
 	{
 		error("Room export failed.")
 		with (obj_shell)
@@ -303,6 +305,8 @@ function utmt_generate_fixes()
 		global.utmtFixes.oldtilesets = true
 		global.utmtFixes.minijohnescapeonly = true
 		global.utmtFixes.ignoretiledepth = true
+		global.utmtFixes.disablesecrettriggers = true
+		global.utmtFixes.disabletvtriggers = true
 	}
 	
 	var initialText = "# This file specifies any fixes that\n"
