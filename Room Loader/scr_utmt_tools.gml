@@ -16,20 +16,23 @@ global.utmtFixes =
 	minijohnescapeonly : false,
 }
 
-// Get UTMT object replacement map
-global.utmtObjectMap = -4
-if (file_exists("spicytopping/utmtobjects.json"))
-	global.utmtObjectMap = json_parse(file_text_read_all("spicytopping/utmtobjects.json"))
+function utmt_initmaps()
+{
+	// Get UTMT object replacement map
+	global.utmtObjectMap = -4
+	if file_exists("spicytopping/utmtobjects.json")
+		global.utmtObjectMap = json_parse(file_text_read_all("spicytopping/utmtobjects.json"))
 	
-// Get UTMT tileset replacement map
-global.utmtTilesetMap = -4
-if (file_exists("spicytopping/utmttilesets.json"))
-	global.utmtTilesetMap = json_parse(file_text_read_all("spicytopping/utmttilesets.json"))
+	// Get UTMT tileset replacement map
+	global.utmtTilesetMap = -4
+	if file_exists("spicytopping/utmttilesets.json")
+		global.utmtTilesetMap = json_parse(file_text_read_all("spicytopping/utmttilesets.json"))
 	
-// Get UTMT tileset replacement map for older builds
-global.utmtOldTilesetMap = -4
-if (file_exists("spicytopping/utmtoldtilesets.json"))
-	global.utmtOldTilesetMap = json_parse(file_text_read_all("spicytopping/utmtoldtilesets.json"))
+	// Get UTMT tileset replacement map for older builds
+	global.utmtOldTilesetMap = -4
+	if file_exists("spicytopping/utmtoldtilesets.json")
+		global.utmtOldTilesetMap = json_parse(file_text_read_all("spicytopping/utmtoldtilesets.json"))
+}
 
 // Downloads the command line version of UndertaleModTool and all other required files
 function utmt_download()
@@ -109,7 +112,7 @@ function utmt_download()
 function utmt_executescript(datafile, scriptfile)
 {
 	var path = concat(game_save_id, "\\utmtcli")
-	var process = ProcessExecute(concat(path, "\\UndertaleModCli.exe load \"", datafile, "\" -s ", path, "\\scripts\\", scriptfile))
+	var process = ProcessExecute(concat(path, "\\UndertaleModCli.exe load \"", datafile, "\" -s \"", path, "\\scripts\\", scriptfile, "\""))
 	var processOutput = ExecutedProcessReadFromStandardOutput(process)
 	print(processOutput)
 }
@@ -123,13 +126,20 @@ function utmt_exportrooms(datafile, setname, exportsprites = false)
 	print("Exporting room data from ", filename_name(datafile))
 	utmt_executescript(datafile, "ExportRooms.csx")
 	
+	var basePath = concat(game_save_id, "/utmtcli/ExportedRooms/")
+	var newPath = concat("exports/", setname, "/")
+	if !directory_exists(concat(newPath, "Rooms"))
+	{
+		error("Room export failed.")
+		with (obj_shell)
+			array_push(output, "Room export failed.")
+		exit;
+	}
+	
 	// Get data file name (ex. PizzaTower_GM2) and UNIX timestamp
 	// Will be used for enabling the old build room fixes
 	print("Getting name and timestamp")
 	utmt_executescript(datafile, "ExportInfo.csx")
-	
-	var basePath = concat(game_save_id, "/utmtcli/ExportedRooms/")
-	var newPath = concat("exports/", setname, "/")
 	
 	// Copy everything from the folder where it exported the rooms
 	print("Copying room data files to room set directory ", setname)
